@@ -115,24 +115,39 @@ The frontend also calculates a preview during onboarding, but the backend perfor
 7. API requests send the token in the `Authorization: Bearer <token>` header.
 8. Logout deletes the session token from the database and clears local storage.
 
+
 ## Running Locally
 
-From the `NutriTrack` folder:
+Recommended (backend serves frontend):
 
 ```bash
-python3 backend/server.py
+# create and activate a virtualenv (macOS / Linux)
+python3 -m venv .venv
+source .venv/bin/activate
+
+# install dependencies
+pip install -r requirements.txt
+
+# start the backend (also serves the frontend at /)
+python backend/server.py
 ```
 
-Open:
+Open in your browser:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-The SQLite database is created automatically at:
+Notes:
+- The SQLite DB is created automatically at `backend/instance/nutritrack.db`.
+- If you prefer to serve only the frontend (Live Server), ensure `API_BASE` in `frontend/src/App.jsx` points to `http://localhost:8000/api`.
 
-```text
-backend/instance/nutritrack.db
+Alternative (frontend-only):
+
+```bash
+cd frontend
+python -m http.server 5500
+# then open http://localhost:5500
 ```
 
 ## Example Meal Descriptions
@@ -160,6 +175,32 @@ Suggested production upgrades:
 - Use Gunicorn/Uvicorn or a small Flask/FastAPI wrapper for larger traffic.
 - Replace CDN React/Tailwind with a Vite build pipeline.
 - Connect to a larger nutrition API such as USDA FoodData Central for broader food coverage.
+
+## Sharing a Demo (temporary)
+
+- Quick: use `ngrok` to expose your local server to the internet for a short demo.
+
+```bash
+# install ngrok (follow instructions at https://ngrok.com/)
+ngrok http 8000
+```
+
+Share the generated `https://*.ngrok.io` URL — it will proxy both frontend and backend (no code changes required).
+
+## Deploying (recommended)
+
+- Backend (hosts API and can also serve frontend):
+  - Providers: Render, Railway, Fly, or Heroku. Steps are typically:
+    1. Push your repo to GitHub.
+    2. Create a new service on the provider and connect the GitHub repo.
+    3. Set the start command to `python backend/server.py`.
+    4. Configure environment and click deploy.
+
+- Frontend (static):
+  - If you separate frontend, build a static bundle (recommended with Vite) and host on Netlify, Vercel, or GitHub Pages.
+  - Note: GitHub Pages is static-only — if you host frontend there, update `API_BASE` to the deployed backend URL.
+
+After deployment, update `frontend/src/App.jsx` `API_BASE` to point to the backend URL (for example `https://your-app.onrender.com/api`).
 
 ## Notes for Resume/Portfolio
 

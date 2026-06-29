@@ -205,7 +205,10 @@ class NutriTrackHandler(BaseHTTPRequestHandler):
         name = data.get("name", "").strip()
         email = data.get("email", "").lower().strip()
         password = data.get("password", "")
-        profile = self.parse_profile_payload(data, require_name=True)
+        # If the client did not provide profile fields during signup, use default goals.
+        profile_field_keys = ["age", "gender", "weight", "height", "goal_weight", "fitness_goal", "activity_level", "daily_calorie_target", "daily_protein_target"]
+        provided = any(data.get(k) not in (None, "") for k in profile_field_keys)
+        profile = None
         if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email):
             raise ValueError("Enter a valid email address.")
         if len(password) < 6:
@@ -220,7 +223,11 @@ class NutriTrackHandler(BaseHTTPRequestHandler):
                 raise ValueError("An account with that email already exists.") from exc
             raise
         user_id = cursor.lastrowid
-        self.save_profile(conn, user_id, profile)
+        if provided:
+            profile = self.parse_profile_payload(data, require_name=True)
+            self.save_profile(conn, user_id, profile)
+        else:
+            create_default_goals(conn, user_id)
         token = create_session(conn, user_id)
         user = row_to_dict(conn.execute("SELECT id, name, email, created_at FROM users WHERE id = ?", (user_id,)).fetchone())
         self.send_json({"token": token, "user": user, "profile": get_goals(conn, user_id)}, 201)
@@ -252,13 +259,25 @@ class NutriTrackHandler(BaseHTTPRequestHandler):
         name = data.get("name", "").strip()
         if require_name and len(name) < 2:
             raise ValueError("Full name must be at least 2 characters.")
+        def to_int(value, default=0):
+            try:
+                return int(value) if value not in (None, "") else default
+            except (TypeError, ValueError):
+                return default
+
+        def to_float(value, default=0.0):
+            try:
+                return float(value) if value not in (None, "") else default
+            except (TypeError, ValueError):
+                return default
+
         fields = {
             "name": name,
-            "age": int(data.get("age", 0)),
+            "age": to_int(data.get("age"), 0),
             "gender": data.get("gender", "").strip(),
-            "weight": float(data.get("weight", 0)),
-            "height": float(data.get("height", 0)),
-            "goal_weight": float(data.get("goal_weight") or 0),
+            "weight": to_float(data.get("weight"), 0),
+            "height": to_float(data.get("height"), 0),
+            "goal_weight": to_float(data.get("goal_weight"), 0),
             "fitness_goal": data.get("fitness_goal", "").strip(),
             "activity_level": data.get("activity_level", "").strip(),
         }
