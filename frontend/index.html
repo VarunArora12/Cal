@@ -4,11 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NutriTrack</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind Theme -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              ink: "#18212f",
+              leaf: "#16a34a",
+              mint: "#ecfdf5",
+              skySoft: "#eef6ff",
+            },
+          },
+        },
+      };
+    </script>
   </head>
 
-  <body>
+  <body class="bg-slate-50 text-ink">
     <div id="root"></div>
 
+    <!-- Vite Entry Point -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

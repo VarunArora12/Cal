@@ -1,4 +1,4 @@
-const { useEffect, useMemo, useState } = React;
+import React, { useEffect, useMemo, useState } from "react";
 
 const API_BASE = "http://localhost:8000/api";
 const TOKEN_KEY = "caltrack_session_token";
@@ -1011,4 +1011,4 @@ function SuccessBox({ message }) {
 const style = document.createElement("style");
 style.textContent = `.input{width:100%;border-radius:0.375rem;border:1px solid rgb(203 213 225);background:white;padding:0.65rem 0.75rem;color:#18212f}.input:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,.12)}`;
 document.head.appendChild(style);
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+export default App;

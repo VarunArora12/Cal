@@ -12,6 +12,9 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "autoprefixer": "^10.5.2",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^4.3.2",
     "vite": "^5.0.0"
   }
 }
