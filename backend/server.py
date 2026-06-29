@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import json
 import mimetypes
 import re
@@ -590,11 +591,15 @@ class NutriTrackHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
-def run(host: str = "127.0.0.1", port: int = 8000):
+def run():
     init_db()
+
+    host = "0.0.0.0"
+    port = int(os.environ.get("PORT", 8000))
+
     server = ThreadingHTTPServer((host, port), NutriTrackHandler)
+
     print(f"NutriTrack is running at http://{host}:{port}")
-    print("Press Ctrl+C to stop the server.")
     server.serve_forever()
 
 
